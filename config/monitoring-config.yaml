@@ -1,0 +1,20 @@
+thread:
+  period: 5
+  numGet: 2
+  numProc: 2
+  numSave: 1
+hash:
+  nodeHash:
+    maxSize: 50
+    hashSize: 10
+  containerHash:
+    maxSize: 200
+    hashSize: 20
+collection:
+  fileSystems:
+    /dev/mapper/centos-root: /
+  networkDevices:
+  - eth0
+  diskDevices: # like iostat
+  - vda
+additional: {}
