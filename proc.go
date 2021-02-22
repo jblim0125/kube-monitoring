@@ -74,7 +74,10 @@ func (m *Monitoring) StartProc(id int) {
 				}).Infof("[ PROC >> SAVER ] Success. Node Sys Usage Filtering, Parsing, Calc..")
 				node.Put()
 			} else if rcvMsg.Type == model.KUBESTATE {
-				proc.KubeStateMetricCheck(rcvMsg, descs)
+				err := proc.KubeStateMetricCheck(rcvMsg, descs)
+				if err != nil {
+					proc.Log.Errorf("%s", err.Error())
+				}
 			}
 			// Save Thread에서 처리할 수 있도록 waitgroup을 처리한다.
 			m.syncWaitGroup.Done()
@@ -231,6 +234,28 @@ func (proc *Proc) KubeStateMetricFilter(fqName string) bool {
 	case ksm.KsmFqNameDaemonsetUpdated:
 	case ksm.KsmFqNameDaemonsetMetadataGeneration:
 	case ksm.KsmFqNameDaemonsetLabels:
+	// Deployment
+	case ksm.KsmFqNameDeploymentCreated:
+	case ksm.KsmFqNameDeploymentStatusReplicas:
+	case ksm.KsmFqNameDeploymentStatusReplicasAvailable:
+	case ksm.KsmFqNameDeploymentStatusReplicasUnavailable:
+	case ksm.KsmFqNameDeploymentStatusReplicasUpdated:
+	case ksm.KsmFqNameDeploymentStatusObserved:
+	case ksm.KsmFqNameDeploymentStatusCondition:
+	case ksm.KsmFqNameDeploymentSpecReplicas:
+	case ksm.KsmFqNameDeploymentSpecPaused:
+	case ksm.KsmFqNameDeploymentSpecStrategyRollingupdateMaxUnavailable:
+	case ksm.KsmFqNameDeploymentSpecStrategyRollingupdateMaxSurge:
+	case ksm.KsmFqNameDeploymentMetadataGeneration:
+	case ksm.KsmFqNameDeploymentLabels:
+	// Ingress
+	case ksm.KsmFqNameIngressInfo:
+	case ksm.KsmFqNameIngressLabels:
+	case ksm.KsmFqNameIngressCreated:
+	case ksm.KsmFqNameIngressMetadataResourceVersion:
+	case ksm.KsmFqNameIngressPath:
+	case ksm.KsmFqNameIngressTLS:
+
 	default:
 		return false
 	}

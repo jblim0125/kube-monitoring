@@ -107,7 +107,7 @@ type MetadataResVersion struct {
 
 // MetadataGen metadata_generation
 type MetadataGen struct {
-	Generation int32 `yaml:"generation"`
+	Generation int64 `yaml:"generation"`
 }
 
 // Configmap kube state metric info
@@ -209,8 +209,7 @@ type DeploymentStatus struct {
 	ReplicasAvailable   int16               `yaml:"replicasAvailable"`
 	ReplicasUnavailable int16               `yaml:"replicasUnavailable"`
 	ReplicasUpdated     int16               `yaml:"replicasUpdated"`
-	ObservedGeneration  int16               `yaml:"observedGeneration"`
-	reserved            int16               `yaml:"reserved"`
+	ObservedGeneration  int64               `yaml:"observedGeneration"`
 	Condition           DeploymentCondition `yaml:"condition"`
 }
 
@@ -218,7 +217,7 @@ type DeploymentStatus struct {
 type DeploymentCondition struct {
 	Available      string `yaml:"Available"`
 	Progressing    string `yaml:"Progressing"`
-	ReplicaFailure string `yaml:"Progressing"`
+	ReplicaFailure string `yaml:"ReplicaFailure"`
 }
 
 // DeploymentSpec deployment spec
@@ -243,15 +242,15 @@ type DeploymentMetadata MetadataGen
 type Ingress struct {
 	used        int32
 	cnt         int32
-	UpdateTime  int64                  `yaml:"updateTime"`
-	RefreshTime int64                  `yaml:"refreshTime"`
-	CID         string                 `yaml:"cID"`
-	Name        string                 `yaml:"name"`
-	Namespace   string                 `yaml:"namespace"`
-	Labels      map[string]string      `yaml:"labels"`
-	Created     int64                  `yaml:"created"`
-	Metadata    IngressMetadata        `yaml:"metadata"`
-	Path        map[string]IngressPath `yaml:"path"`
+	UpdateTime  int64             `yaml:"updateTime"`
+	RefreshTime int64             `yaml:"refreshTime"`
+	CID         string            `yaml:"cID"`
+	Name        string            `yaml:"name"`
+	Namespace   string            `yaml:"namespace"`
+	Labels      map[string]string `yaml:"labels"`
+	Created     int64             `yaml:"created"`
+	Metadata    IngressMetadata   `yaml:"metadata"`
+	Path        []IngressPath     `yaml:"path"`
 }
 
 // IngressMetadata Ingress metadata
@@ -259,6 +258,7 @@ type IngressMetadata MetadataResVersion
 
 // IngressPath ingress host - service
 type IngressPath struct {
+	RefreshTime int64  `yaml:"refreshTime"`
 	Host        string `yaml:"host"`
 	Path        string `yaml:"path"`
 	ServiceName string `yaml:"serviceName"`

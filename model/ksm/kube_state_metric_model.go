@@ -104,6 +104,13 @@ const (
 	KsmFqNameDeploymentLabels                                  = "kube_deployment_labels"
 )
 
+// Deploy Status Condition
+const (
+	KsmDeployStatusConditionAvailable      = "Available"
+	KsmDeployStatusConditionProgressing    = "Progressing"
+	KsmDeployStatusConditionReplicaFailure = "ReplicaFailure"
+)
+
 // Endpoint : 2021.02.09 시점에서는 무시
 
 // HPA : 2021.02.09 시점에서는 무시
