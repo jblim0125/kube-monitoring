@@ -1,5 +1,14 @@
 package ksm
 
+/*
+ * 구조체를 구성하는 중요 데이터에 대한 설명
+ * used => unused, creating, used, delete 로 구성
+ *   cnt와 더불어 multi thread safe를 위해 사용된다.
+ * cnt => 다중 스레드 환경에서 데이터의 사용 중 삭제를 막기 위함
+ * UpdateTime => 변화를 인지하기 데이터
+ * RefreshTime => 데이터 삭제를 위해 사용되는 정보( 갱신되지 않은 경우 삭제된 것으로 간주 )
+ */
+
 // Cluster cluster info
 type Cluster struct {
 	used   int32
@@ -250,21 +259,48 @@ type Ingress struct {
 	Labels      map[string]string `yaml:"labels"`
 	Created     int64             `yaml:"created"`
 	Metadata    IngressMetadata   `yaml:"metadata"`
-	Path        []IngressPath     `yaml:"path"`
+	Spec        IngressSpec       `yaml:"spec"`
 }
 
 // IngressMetadata Ingress metadata
 type IngressMetadata MetadataResVersion
 
-// IngressPath ingress host - service
+// IngressSpec ingress spec rules, tls
+type IngressSpec struct {
+	Rules []IngressRule `yaml:"rules"`
+	TLS   []IngressTLS  `yaml:"tls"`
+}
+
+// IngressRule ingress rule
+type IngressRule struct {
+	RefreshTime int64         `yaml:"refreshTime"`
+	UpdateTime  int64         `yaml:"updateTime"`
+	Host        string        `yaml:"host"`
+	Paths       []IngressPath `yaml:"paths"`
+}
+
+// IngressPath ingress backend path
 type IngressPath struct {
 	RefreshTime int64  `yaml:"refreshTime"`
-	Host        string `yaml:"host"`
+	UpdateTime  int64  `yaml:"updateTime"`
 	Path        string `yaml:"path"`
 	ServiceName string `yaml:"serviceName"`
 	ServicePort string `yaml:"servicePort"`
-	TLSHost     string `yaml:"tlsHost"`
-	TLSSecret   string `yaml:"tlsSecret"`
+}
+
+// IngressTLS ingress TLS
+type IngressTLS struct {
+	RefreshTime int64         `yaml:"refreshTime"`
+	UpdateTime  int64         `yaml:"updateTime"`
+	Hosts       []IngressHost `yaml:"hosts"`
+	Secretname  string        `yaml:"secretName"`
+}
+
+// IngressHost ingress tls hosts
+type IngressHost struct {
+	RefreshTime int64  `yaml:"refreshTime"`
+	UpdateTime  int64  `yaml:"updateTime"`
+	Host        string `yaml:"host"`
 }
 
 // Job job struct
@@ -313,16 +349,24 @@ type PersistentVolumeClaim struct {
 	Name         string                      `yaml:"name"`
 	Namespace    string                      `yaml:"namespace"`
 	Labels       map[string]string           `yaml:"labels"`
-	Info         map[string]string           `yaml:"info"`
+	Infos        map[string]string           `yaml:"info"`
 	Phase        string                      `yaml:"phase"`
 	RequestBytes int64                       `yaml:"requestBytes"`
-	AccessModes  []string                    `yaml:"accessModes"`
+	AccessModes  []PVCAccessMode             `yaml:"accessModes"`
 	Status       PersistentVolumeClaimStatus `yaml:"status"`
+}
+
+// PVCAccessMode pvc access mode
+type PVCAccessMode struct {
+	RefreshTime int64  `yaml:"refreshTime"`
+	AccessMode  string `yaml:"accessMode"`
 }
 
 // PersistentVolumeClaimStatus persistent volume claim status
 type PersistentVolumeClaimStatus struct {
-	Condition string `yaml:"condition"` // Resizing, FileSystemResizePending
+	UpdateTime  int64             `yaml:"updateTime"`
+	RefreshTime int64             `yaml:"refreshTime"`
+	Conditions  map[string]string `yaml:"conditions"` // Resizing, FileSystemResizePending, customizedType
 }
 
 // PersistentVolume persistent volume
@@ -334,6 +378,7 @@ type PersistentVolume struct {
 	CID           string            `yaml:"cID"`
 	Name          string            `yaml:"name"`
 	Labels        map[string]string `yaml:"labels"`
+	Infos         map[string]string `yaml:"infos"`
 	Phase         string            `yaml:"phase"`
 	CapacityBytes int64             `yaml:"capacityBytes"`
 }
@@ -342,29 +387,30 @@ type PersistentVolume struct {
 type Pod struct {
 	used           int32
 	cnt            int32
-	UpdateTime     int64                    `yaml:"updateTime"`
-	RefreshTime    int64                    `yaml:"refreshTime"`
-	CID            string                   `yaml:"cID"`
-	Name           string                   `yaml:"name"`
-	Namespace      string                   `yaml:"namespace"`
-	PodInfo        map[string]string        `yaml:"info"`
-	StartTime      int64                    `yaml:"startTime"`
-	Owner          map[string]string        `yaml:"owner"`
-	Labels         map[string]string        `yaml:"labels"`
-	Created        int64                    `yaml:"created"`
-	RestartPolicy  string                   `yaml:"restartPolicy"`
-	Status         PodStatus                `yaml:"status"`
-	InitContainers map[string]PodContainer  `yaml:"initContainers"`
-	Containers     map[string]PodContainer  `yaml:"containers"`
-	PVC            PodPersistentVolumeClaim `yaml:"PVC"`
+	UpdateTime     int64                      `yaml:"updateTime"`
+	RefreshTime    int64                      `yaml:"refreshTime"`
+	CID            string                     `yaml:"cID"`
+	Name           string                     `yaml:"name"`
+	Namespace      string                     `yaml:"namespace"`
+	Node           string                     `yaml:"node"`
+	Infos          map[string]string          `yaml:"infos"`
+	Labels         map[string]string          `yaml:"labels"`
+	Owner          map[string]string          `yaml:"owner"`
+	StartTime      int64                      `yaml:"startTime"`
+	Created        int64                      `yaml:"created"`
+	RestartPolicy  string                     `yaml:"restartPolicy"`
+	Status         PodStatus                  `yaml:"status"`
+	InitContainers map[string]PodContainer    `yaml:"initContainers"`
+	Containers     map[string]PodContainer    `yaml:"containers"`
+	PVCs           []PodPersistentVolumeClaim `yaml:"pvcs"`
 }
 
 // PodStatus pod status
 type PodStatus struct {
-	ScheduledTime int64
-	Phase         string
-	Ready         string
-	Scheduled     string
+	ScheduledTime int64  `yaml:"scheduledTime"`
+	Phase         string `yaml:"phase"`
+	Ready         string `yaml:"ready"`
+	Scheduled     string `yaml:"scheduled"`
 }
 
 // PodContainer pod container
@@ -390,15 +436,14 @@ type ContainerStatus struct {
 
 // ContainerResource container resource
 type ContainerResource struct {
-	Node string `yaml:"node"`
-	CPU  string `yaml:"cpu"`
-	Mem  string `yaml:"mem"`
+	CPU string `yaml:"cpu"`
+	Mem string `yaml:"mem"`
 }
 
 // PodPersistentVolumeClaim pod - persistent volume claim info
 type PodPersistentVolumeClaim struct {
-	ReadOnly bool   `yaml:"readyOnly"`
-	PVCName  string `yaml:"pvcName"`
+	Volume  string `yaml:"volume"`
+	PVCName string `yaml:"pvcName"`
 }
 
 // Replicaset replicaset
@@ -522,11 +567,11 @@ type Statefulset struct {
 
 // StatefulsetStatus statefulset status
 type StatefulsetStatus struct {
-	Replicas           int `yaml:"replicas"`
-	ReplicasCurrent    int `yaml:"replicasCurrent"`
-	ReplicasReady      int `yaml:"replicasReady"`
-	ReplicasUpdated    int `yaml:"replicasUpdated"`
-	ObservedGeneration int `yaml:"observedGeneration"`
+	Replicas           int   `yaml:"replicas"`
+	ReplicasCurrent    int   `yaml:"replicasCurrent"`
+	ReplicasReady      int   `yaml:"replicasReady"`
+	ReplicasUpdated    int   `yaml:"replicasUpdated"`
+	ObservedGeneration int64 `yaml:"observedGeneration"`
 }
 
 // StatefulsetMetadata statefulset metadata

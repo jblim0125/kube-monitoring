@@ -33,7 +33,7 @@ func GetSeconds() int64 {
 	return time.Now().UnixNano() / int64(time.Second)
 }
 
-// PrintTime 한국 기준으로 시간을 출력 ( YYYY-MM-DD HH:mm:ss )
+// PrintTimeFromSec 한국 기준으로 시간을 출력 ( YYYY-MM-DD HH:mm:ss )
 func PrintTimeFromSec(epoch int64) string {
 	t, _ := GetLocalTime(epoch*1000, "Korea")
 	strTime := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",
@@ -41,7 +41,7 @@ func PrintTimeFromSec(epoch int64) string {
 	return strTime
 }
 
-// PrintTime 한국 기준으로 시간을 출력 ( YYYY-MM-DD HH:mm:ss )
+// PrintTimeFromMilli 한국 기준으로 시간을 출력 ( YYYY-MM-DD HH:mm:ss )
 func PrintTimeFromMilli(epoch int64) string {
 	t, _ := GetLocalTime(epoch, "Korea")
 	strTime := fmt.Sprintf("%d-%02d-%02d %02d:%02d:%02d",

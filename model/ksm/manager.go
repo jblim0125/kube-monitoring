@@ -6,6 +6,7 @@ import (
 
 	logrus "github.com/sirupsen/logrus"
 	"mobigen.com/iris-cloud-monitoring/model"
+	"mobigen.com/iris-cloud-monitoring/tools"
 )
 
 // Manager ksm manager
@@ -75,7 +76,7 @@ func (manager *Manager) GetCluster(cID string) (*Cluster, error) {
 		atomic.AddInt32(&cluster.cnt, 1)
 		return cluster, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Cluster ID[ %s ]", cID)
+	return nil, fmt.Errorf("Not Found Cluster ID[ %s ]", cID)
 }
 
 // GetClusters return cluster all
@@ -121,13 +122,13 @@ func (manager *Manager) AllocNode() (*Node, error) {
 		atomic.StoreInt32(&node.cnt, 2)
 		return node, nil
 	}
-	return nil, fmt.Errorf("error. failed to alloc node")
+	return nil, fmt.Errorf("failed to alloc node")
 }
 
 // Add Add Node
 func (node *Node) Add() error {
 	if len(node.CID) <= 0 || len(node.Name) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Node[ %s ]", node.CID, node.Name)
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Node[ %s ]", node.CID, node.Name)
 	}
 	manager := GetInstance()
 	manager.Log.Infof("Add Node To Kube_State_Metrics. CID[ %s ] Node[ %s ]", node.CID, node.Name)
@@ -261,13 +262,13 @@ func (manager *Manager) AllocConfigmap() (*Configmap, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Configmap")
+	return nil, fmt.Errorf("Failed To Alloc Configmap")
 }
 
 // Add Add Configmap
 func (configmap *Configmap) Add() error {
 	if len(configmap.CID) <= 0 || len(configmap.Name) <= 0 || len(configmap.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			configmap.CID, configmap.Namespace, configmap.Name)
 	}
 	manager := GetInstance()
@@ -298,7 +299,7 @@ func (manager *Manager) GetConfigmap(cid, namespace, name string) (*Configmap, e
 		atomic.AddInt32(&configmap.cnt, 1)
 		return configmap, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Configmap CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Configmap CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -339,13 +340,13 @@ func (manager *Manager) AllocDaemonset() (*Daemonset, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Daemonset")
+	return nil, fmt.Errorf("Failed To Alloc Daemonset")
 }
 
 // Add Add Daemonset
 func (daemonset *Daemonset) Add() error {
 	if len(daemonset.CID) <= 0 || len(daemonset.Name) <= 0 || len(daemonset.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			daemonset.CID, daemonset.Namespace, daemonset.Name)
 	}
 	manager := GetInstance()
@@ -370,13 +371,13 @@ func (manager *Manager) GetDaemonset(cid, namespace, name string) (*Daemonset, e
 	}
 	if daemonset, ok := manager.Data.Daemonsets[key]; ok {
 		if atomic.LoadInt32(&daemonset.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Daemonset Not Used. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Daemonset Not Used. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&daemonset.cnt, 1)
 		return daemonset, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Daemonset CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Daemonset CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -417,13 +418,13 @@ func (manager *Manager) AllocDeployment() (*Deployment, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Deployment")
+	return nil, fmt.Errorf("Failed To Alloc Deployment")
 }
 
 // Add Add Deployment
 func (deployment *Deployment) Add() error {
 	if len(deployment.CID) <= 0 || len(deployment.Name) <= 0 || len(deployment.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			deployment.CID, deployment.Namespace, deployment.Name)
 	}
 	manager := GetInstance()
@@ -448,13 +449,13 @@ func (manager *Manager) GetDeployment(cid, namespace, name string) (*Deployment,
 	}
 	if deployment, ok := manager.Data.Deployments[key]; ok {
 		if atomic.LoadInt32(&deployment.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Deployment Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Deployment Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&deployment.cnt, 1)
 		return deployment, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Deployment CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Deployment CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -495,13 +496,13 @@ func (manager *Manager) AllocIngress() (*Ingress, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Ingress")
+	return nil, fmt.Errorf("Failed To Alloc Ingress")
 }
 
 // Add Add Ingress
 func (ingress *Ingress) Add() error {
 	if len(ingress.CID) <= 0 || len(ingress.Name) <= 0 || len(ingress.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			ingress.CID, ingress.Namespace, ingress.Name)
 	}
 	manager := GetInstance()
@@ -526,13 +527,13 @@ func (manager *Manager) GetIngress(cid, namespace, name string) (*Ingress, error
 	}
 	if ingress, ok := manager.Data.Ingresses[key]; ok {
 		if atomic.LoadInt32(&ingress.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Ingress Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Ingress Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&ingress.cnt, 1)
 		return ingress, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Ingress CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Ingress CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -573,13 +574,13 @@ func (manager *Manager) AllocCronjob() (*Cronjob, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Cronjob")
+	return nil, fmt.Errorf("Failed To Alloc Cronjob")
 }
 
 // Add Add Cronjob
 func (cronjob *Cronjob) Add() error {
 	if len(cronjob.CID) <= 0 || len(cronjob.Name) <= 0 || len(cronjob.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			cronjob.CID, cronjob.Namespace, cronjob.Name)
 	}
 	manager := GetInstance()
@@ -604,13 +605,13 @@ func (manager *Manager) GetCronjob(cid, namespace, name string) (*Cronjob, error
 	}
 	if cronjob, ok := manager.Data.Cronjobs[key]; ok {
 		if atomic.LoadInt32(&cronjob.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Cronjob Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Cronjob Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&cronjob.cnt, 1)
 		return cronjob, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Cronjob CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Cronjob CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -651,13 +652,13 @@ func (manager *Manager) AllocJob() (*Job, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Job")
+	return nil, fmt.Errorf("Failed To Alloc Job")
 }
 
 // Add Add Job
 func (job *Job) Add() error {
 	if len(job.CID) <= 0 || len(job.Name) <= 0 || len(job.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			job.CID, job.Namespace, job.Name)
 	}
 	manager := GetInstance()
@@ -682,13 +683,13 @@ func (manager *Manager) GetJob(cid, namespace, name string) (*Job, error) {
 	}
 	if job, ok := manager.Data.Jobs[key]; ok {
 		if atomic.LoadInt32(&job.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Job Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Job Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&job.cnt, 1)
 		return job, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Job CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Job CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -729,13 +730,13 @@ func (manager *Manager) AllocPersistentVolumeClaim() (*PersistentVolumeClaim, er
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc PersistentVolumeClaim")
+	return nil, fmt.Errorf("Failed To Alloc PersistentVolumeClaim")
 }
 
 // Add Add PersistentVolumeClaim
 func (pvc *PersistentVolumeClaim) Add() error {
 	if len(pvc.CID) <= 0 || len(pvc.Name) <= 0 || len(pvc.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			pvc.CID, pvc.Namespace, pvc.Name)
 	}
 	manager := GetInstance()
@@ -760,13 +761,13 @@ func (manager *Manager) GetPersistentVolumeClaim(cid, namespace, name string) (*
 	}
 	if pvc, ok := manager.Data.PersistentVolumeClaims[key]; ok {
 		if atomic.LoadInt32(&pvc.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. PersistentVolumeClaim Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("PersistentVolumeClaim Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&pvc.cnt, 1)
 		return pvc, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found PersistentVolumeClaim CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found PersistentVolumeClaim CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -807,13 +808,13 @@ func (manager *Manager) AllocPersistentVolume() (*PersistentVolume, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc PersistentVolume")
+	return nil, fmt.Errorf("Failed To Alloc PersistentVolume")
 }
 
 // Add Add PersistentVolume
 func (pv *PersistentVolume) Add() error {
 	if len(pv.CID) <= 0 || len(pv.Name) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Name[ %s ]",
 			pv.CID, pv.Name)
 	}
 	manager := GetInstance()
@@ -836,13 +837,13 @@ func (manager *Manager) GetPersistentVolume(cid, name string) (*PersistentVolume
 	}
 	if pv, ok := manager.Data.PersistentVolumes[key]; ok {
 		if atomic.LoadInt32(&pv.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. PersistentVolume Not Used.. CID[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("PersistentVolume Not Used.. CID[ %s ] Name[ %s ]",
 				cid, name)
 		}
 		atomic.AddInt32(&pv.cnt, 1)
 		return pv, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found PersistentVolume CID[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found PersistentVolume CID[ %s ] Name[ %s ]",
 		cid, name)
 }
 
@@ -880,15 +881,17 @@ func (manager *Manager) AllocPod() (*Pod, error) {
 	if ret != nil {
 		atomic.StoreInt32(&ret.used, model.CREATING)
 		atomic.StoreInt32(&ret.cnt, 2)
+		ret.Containers = make(map[string]PodContainer)
+		ret.InitContainers = make(map[string]PodContainer)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Pod")
+	return nil, fmt.Errorf("Failed To Alloc Pod")
 }
 
 // Add Add Pod
 func (pod *Pod) Add() error {
 	if len(pod.CID) <= 0 || len(pod.Name) <= 0 || len(pod.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			pod.CID, pod.Namespace, pod.Name)
 	}
 	manager := GetInstance()
@@ -913,13 +916,13 @@ func (manager *Manager) GetPod(cid, namespace, name string) (*Pod, error) {
 	}
 	if pod, ok := manager.Data.Pods[key]; ok {
 		if atomic.LoadInt32(&pod.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Pod Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Pod Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&pod.cnt, 1)
 		return pod, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Pod CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Pod CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -960,13 +963,13 @@ func (manager *Manager) AllocReplicaset() (*Replicaset, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Replicaset")
+	return nil, fmt.Errorf("Failed To Alloc Replicaset")
 }
 
 // Add Add Replicaset
 func (replicaset *Replicaset) Add() error {
 	if len(replicaset.CID) <= 0 || len(replicaset.Name) <= 0 || len(replicaset.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			replicaset.CID, replicaset.Namespace, replicaset.Name)
 	}
 	manager := GetInstance()
@@ -991,13 +994,13 @@ func (manager *Manager) GetReplicaset(cid, namespace, name string) (*Replicaset,
 	}
 	if replicaset, ok := manager.Data.Replicasets[key]; ok {
 		if atomic.LoadInt32(&replicaset.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Replicaset Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Replicaset Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&replicaset.cnt, 1)
 		return replicaset, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Replicaset CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Replicaset CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -1038,13 +1041,13 @@ func (manager *Manager) AllocReplicationController() (*ReplicationController, er
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc ReplicationController")
+	return nil, fmt.Errorf("Failed To Alloc ReplicationController")
 }
 
 // Add Add ReplicationController
 func (rc *ReplicationController) Add() error {
 	if len(rc.CID) <= 0 || len(rc.Name) <= 0 || len(rc.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			rc.CID, rc.Namespace, rc.Name)
 	}
 	manager := GetInstance()
@@ -1069,13 +1072,13 @@ func (manager *Manager) GetReplicationController(cid, namespace, name string) (*
 	}
 	if rc, ok := manager.Data.ReplicationControllers[key]; ok {
 		if atomic.LoadInt32(&rc.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. ReplicationController Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("ReplicationController Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&rc.cnt, 1)
 		return rc, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found ReplicationController CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found ReplicationController CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -1116,13 +1119,13 @@ func (manager *Manager) AllocSecret() (*Secret, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Secret")
+	return nil, fmt.Errorf("Failed To Alloc Secret")
 }
 
 // Add Add Secret
 func (secret *Secret) Add() error {
 	if len(secret.CID) <= 0 || len(secret.Name) <= 0 || len(secret.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			secret.CID, secret.Namespace, secret.Name)
 	}
 	manager := GetInstance()
@@ -1147,13 +1150,13 @@ func (manager *Manager) GetSecret(cid, namespace, name string) (*Secret, error) 
 	}
 	if secret, ok := manager.Data.Secrets[key]; ok {
 		if atomic.LoadInt32(&secret.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Secret Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Secret Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&secret.cnt, 1)
 		return secret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Secret CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Secret CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -1194,13 +1197,13 @@ func (manager *Manager) AllocService() (*Service, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Service")
+	return nil, fmt.Errorf("Failed To Alloc Service")
 }
 
 // Add Add Service
 func (service *Service) Add() error {
 	if len(service.CID) <= 0 || len(service.Name) <= 0 || len(service.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			service.CID, service.Namespace, service.Name)
 	}
 	manager := GetInstance()
@@ -1225,13 +1228,13 @@ func (manager *Manager) GetService(cid, namespace, name string) (*Service, error
 	}
 	if service, ok := manager.Data.Services[key]; ok {
 		if atomic.LoadInt32(&service.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Service Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Service Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&service.cnt, 1)
 		return service, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Service CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Service CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -1272,13 +1275,13 @@ func (manager *Manager) AllocStatefulset() (*Statefulset, error) {
 		atomic.StoreInt32(&ret.cnt, 2)
 		return ret, nil
 	}
-	return nil, fmt.Errorf("ERROR. Failed To Alloc Statefulset")
+	return nil, fmt.Errorf("Failed To Alloc Statefulset")
 }
 
 // Add Add Statefulset
 func (sts *Statefulset) Add() error {
 	if len(sts.CID) <= 0 || len(sts.Name) <= 0 || len(sts.Namespace) <= 0 {
-		return fmt.Errorf("ERROR. Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
+		return fmt.Errorf("Not Found Key Value CID[ %s ], Namespace[ %s ], Name[ %s ]",
 			sts.CID, sts.Namespace, sts.Name)
 	}
 	manager := GetInstance()
@@ -1303,13 +1306,13 @@ func (manager *Manager) GetStatefulset(cid, namespace, name string) (*Statefulse
 	}
 	if sts, ok := manager.Data.Statefulsets[key]; ok {
 		if atomic.LoadInt32(&sts.used) != model.USED {
-			return nil, fmt.Errorf("ERROR. Statefulset Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
+			return nil, fmt.Errorf("Statefulset Not Used.. CID[ %s ] Namespace[ %s ] Name[ %s ]",
 				cid, namespace, name)
 		}
 		atomic.AddInt32(&sts.cnt, 1)
 		return sts, nil
 	}
-	return nil, fmt.Errorf("ERROR. Not Found Statefulset CID[ %s ] Namespace[ %s ] Name[ %s ]",
+	return nil, fmt.Errorf("Not Found Statefulset CID[ %s ] Namespace[ %s ] Name[ %s ]",
 		cid, namespace, name)
 }
 
@@ -1413,4 +1416,116 @@ func (manager *Manager) DebugForeach() {
 	for k, v := range manager.Data.Statefulsets {
 		manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
 	}
+}
+
+// CheckKSMData check ksm data(insert/update/delete)
+func (manager *Manager) CheckKSMData() {
+	nowTime := tools.GetMillis()
+	// for k, v := range manager.Data.Clusters {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+
+	// manager.Log.Debugf("Pods")
+	for _, pod := range manager.Data.Pods {
+		if atomic.LoadInt32(&pod.used) != model.USED {
+			continue
+		}
+		atomic.AddInt32(&pod.cnt, 1)
+
+		// New?
+		// manager.Log.Debugf("Created Now[ %d ] Created[ %d ] Diff[ %d ]", nowTime, pod.Created, nowTime-pod.Created)
+		if nowTime-pod.Created < int64(5*1000) {
+			manager.Log.Debugf("New Pod Created.[ %s-%s-%s ]", pod.CID, pod.Namespace, pod.Name)
+		}
+		// Update?
+		// manager.Log.Debugf("Update Check Now[ %d ] Update[ %d ] Diff[ %d ]", nowTime, pod.UpdateTime, nowTime-pod.UpdateTime)
+		if nowTime-pod.UpdateTime < int64(5*1000) {
+			manager.Log.Debugf("Update Pod Info.[ %s-%s-%s ]", pod.CID, pod.Namespace, pod.Name)
+		}
+		// Delete?
+		// manager.Log.Debugf("Delete Check Now[ %d ] RefreshTime[ %d ] Diff[ %d ]", nowTime, pod.RefreshTime, nowTime-pod.RefreshTime)
+		if nowTime-pod.RefreshTime > int64(5*1000) {
+			manager.Log.Debugf("Delete Pod.[ %s-%s-%s ]", pod.CID, pod.Namespace, pod.Name)
+			pod.Del()
+		}
+		pod.Put()
+	}
+
+	// manager.Log.Debugf("Namespace")
+	for _, namespace := range manager.Data.Namespaces {
+		if atomic.LoadInt32(&namespace.used) != model.USED {
+			continue
+		}
+		atomic.AddInt32(&namespace.cnt, 1)
+
+		// New
+		if nowTime-namespace.Created < int64(5*1000) {
+			manager.Log.Debugf("New namespace Created.[ %+v ]", namespace)
+		}
+		// Update
+		if nowTime-namespace.UpdateTime < int64(5*1000) {
+			manager.Log.Debugf("Update namespace Info.[ %+v ]", namespace)
+		}
+		// Delete
+		if nowTime-namespace.RefreshTime > int64(5*1000) {
+			if namespace.Phase == KsmNamespaceStatusPhaseTerminating {
+				manager.Log.Debugf("Delete namespace.[ %+v ]", namespace)
+				namespace.Del()
+			}
+		}
+		namespace.Put()
+	}
+
+	// manager.Log.Debugf("PV")
+	// for k, v := range manager.Data.PersistentVolumes {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Configmaps")
+	// for k, v := range manager.Data.Configmaps {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Cronjob")
+	// for k, v := range manager.Data.Cronjobs {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Daemonsets")
+	// for k, v := range manager.Data.Daemonsets {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Deployments")
+	// for k, v := range manager.Data.Deployments {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Ingress")
+	// for k, v := range manager.Data.Ingresses {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Jobs")
+	// for k, v := range manager.Data.Jobs {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("PVCs")
+	// for k, v := range manager.Data.PersistentVolumeClaims {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Replicaset")
+	// for k, v := range manager.Data.Replicasets {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("ReplicationControllers")
+	// for k, v := range manager.Data.ReplicationControllers {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Secret")
+	// for k, v := range manager.Data.Secrets {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Services")
+	// for k, v := range manager.Data.Services {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
+	// manager.Log.Debugf("Statefulsets")
+	// for k, v := range manager.Data.Statefulsets {
+	// 	manager.Log.Debugf("Key[ %+v ] Value[ %+v ]", k, *v)
+	// }
 }
